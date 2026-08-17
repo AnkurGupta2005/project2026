@@ -301,32 +301,6 @@
     </section>
 
 
-    <!-- ZONES -->
-
-    <section class="section">
-
-        <div class="section-heading">
-
-            <div>
-                <span class="small-heading">
-                    SITE MAP
-                </span>
-
-                <h2 data-i18n="siteZones">
-                    Site Safety Zones
-                </h2>
-            </div>
-
-        </div>
-
-
-        <div id="visitorZones"
-             class="zones-grid">
-        </div>
-
-    </section>
-
-
     <!-- MAP -->
 
     <section class="section">
@@ -401,8 +375,14 @@
                     Location / Zone
                 </label>
 
-                <select id="incidentZone">
-                </select>
+                <input type="text"
+                       id="incidentZone"
+                       list="incidentZoneList"
+                       placeholder="Type a location or zone name"
+                       autocomplete="off">
+
+                <datalist id="incidentZoneList">
+                </datalist>
 
             </div>
 

@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>PilgrimSafe AI</title>
+
+    <!-- TensorFlow.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+
+    <!-- COCO-SSD Object Detection -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<!-- =========================================================
+     NAVIGATION
+========================================================= -->
+
+<nav class="navbar">
+
+    <div class="logo">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span data-i18n="appName">PilgrimSafe AI</span>
+    </div>
+
+    <div class="nav-buttons">
+
+        <button id="visitorBtn"
+                class="nav-btn active"
+                onclick="showPage('visitor')">
+            <i class="fa-solid fa-user"></i>
+            <span data-i18n="visitor">Visitor</span>
+        </button>
+
+        <button id="adminBtn"
+                class="nav-btn"
+                onclick="showPage('admin')">
+            <i class="fa-solid fa-display"></i>
+            <span data-i18n="admin">Admin Dashboard</span>
+        </button>
+
+        <select id="languageSelect"
+                onchange="changeLanguage(this.value)">
+
+            <option value="en">English</option>
+            <option value="hi">हिन्दी</option>
+            <option value="bn">বাংলা</option>
+            <option value="ta">தமிழ்</option>
+        </select>
+
+    </div>
+
+</nav>
+
+
+<!-- =========================================================
+     MAIN CONTENT
+========================================================= -->
+
+<main>
+
+
+<!-- =========================================================
+     VISITOR PAGE
+========================================================= -->
+
+<section id="visitorPage" class="page active">
+
+    <!-- HERO -->
+
+    <div class="hero">
+
+        <div>
+            <span class="hero-tag">
+                AI POWERED SAFETY
+            </span>
+
+            <h1 data-i18n="heroTitle">
+                Safer Pilgrimage.
+                Smarter Crowd Management.
+            </h1>
+
+            <p data-i18n="heroText">
+                Real-time crowd monitoring, incident reporting,
+                weather intelligence and location-based safety alerts.
+            </p>
+
+            <button class="primary-btn"
+                    onclick="scrollToSection('visitorSafety')">
+
+                <i class="fa-solid fa-shield"></i>
+                <span data-i18n="checkSafety">
+                    Check My Safety
+                </span>
+
+            </button>
+        </div>
+
+        <div class="hero-icon">
+
+            <i class="fa-solid fa-location-dot"></i>
+
+            <div class="pulse"></div>
+
+        </div>
+
+    </div>
+
+
+    <!-- CURRENT SAFETY -->
+
+    <section id="visitorSafety"
+             class="section">
+
+        <div class="section-heading">
+
+            <div>
+                <span class="small-heading">
+                    LIVE MONITORING
+                </span>
+
+                <h2 data-i18n="currentSafety">
+                    Current Safety Status
+                </h2>
+            </div>
+
+            <div id="lastUpdated"
+                 class="last-updated">
+                Updated now
+            </div>
+
+        </div>
+
+
+        <div class="safety-grid">
+
+            <!-- Overall Risk -->
+
+            <div class="safety-card main-risk-card">
+
+                <div class="card-icon red-icon">
+
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+
+                </div>
+
+                <div>
+
+                    <p data-i18n="overallRisk">
+                        Overall Risk
+                    </p>
+
+                    <h3 id="visitorRisk">
+                        LOW
+                    </h3>
+
+                    <div class="risk-meter">
+
+                        <div id="visitorRiskBar"
+                             class="risk-meter-fill">
+                        </div>
+
+                    </div>
+
+                    <span id="visitorRiskScore">
+                        25 / 100
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- Crowd -->
+
+            <div class="safety-card">
+
+                <div class="card-icon blue-icon">
+
+                    <i class="fa-solid fa-people-group"></i>
+
+                </div>
+
+                <div>
+
+                    <p data-i18n="crowdLevel">
+                        Crowd Level
+                    </p>
+
+                    <h3 id="visitorCrowd">
+                        Moderate
+                    </h3>
+
+                    <span id="visitorCrowdPeople">
+                        95 visitors
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- Weather -->
+
+            <div class="safety-card">
+
+                <div class="card-icon orange-icon">
+
+                    <i class="fa-solid fa-cloud-sun"></i>
+
+                </div>
+
+                <div>
+
+                    <p data-i18n="weather">
+                        Weather
+                    </p>
+
+                    <h3 id="visitorWeather">
+                        27°C
+                    </h3>
+
+                    <span id="visitorWeatherText">
+                        Partly Cloudy
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- Transport -->
+
+            <div class="safety-card">
+
+                <div class="card-icon green-icon">
+
+                    <i class="fa-solid fa-bus"></i>
+
+                </div>
+
+                <div>
+
+                    <p data-i18n="transport">
+                        Transport
+                    </p>
+
+                    <h3 id="visitorTransport">
+                        Normal
+                    </h3>
+
+                    <span>
+                        Shuttle service active
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ALERT -->
+
+    <section class="alert-box"
+             id="visitorAlert">
+
+        <div class="alert-icon">
+
+            <i class="fa-solid fa-bell"></i>
+
+        </div>
+
+        <div>
+
+            <h3 id="visitorAlertTitle">
+                Safety Advisory
+            </h3>
+
+            <p id="visitorAlertText">
+                Please follow marked routes and
+                staff instructions.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- ZONES -->
+
+    <section class="section">
+
+        <div class="section-heading">
+
+            <div>
+                <span class="small-heading">
+                    SITE MAP
+                </span>
+
+                <h2 data-i18n="siteZones">
+                    Site Safety Zones
+                </h2>
+            </div>
+
+        </div>
+
+
+        <div id="visitorZones"
+             class="zones-grid">
+        </div>
+
+    </section>
+
+
+    <!-- MAP -->
+
+    <section class="section">
+
+        <div class="section-heading">
+
+            <div>
+                <span class="small-heading">
+                    LOCATION
+                </span>
+
+                <h2 data-i18n="yourLocation">
+                    Your Location
+                </h2>
+            </div>
+
+        </div>
+
+
+        <div class="map-card">
+
+            <div id="locationMessage">
+                Location permission not requested.
+            </div>
+
+            <button class="secondary-btn"
+                    onclick="getUserLocation()">
+
+                <i class="fa-solid fa-location-crosshairs"></i>
+
+                <span data-i18n="detectLocation">
+                    Detect My Location
+                </span>
+
+            </button>
+
+            <div id="locationResult"
+                 class="location-result">
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- INCIDENT REPORT -->
+
+    <section class="section">
+
+        <div class="section-heading">
+
+            <div>
+
+                <span class="small-heading">
+                    EMERGENCY SUPPORT
+                </span>
+
+                <h2 data-i18n="reportIncident">
+                    Report an Incident
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <div class="incident-form">
+
+            <div class="form-group">
+
+                <label data-i18n="incidentZone">
+                    Location / Zone
+                </label>
+
+                <select id="incidentZone">
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label data-i18n="incidentType">
+                    Incident Type
+                </label>
+
+                <select id="incidentType">
+
+                    <option value="Medical Emergency">
+                        🚑 Medical Emergency
+                    </option>
+
+                    <option value="Fire">
+                        🔥 Fire
+                    </option>
+
+                    <option value="Crowd Problem">
+                        👥 Crowd Problem
+                    </option>
+
+                    <option value="Blocked Path">
+                        🚧 Blocked Path
+                    </option>
+
+                    <option value="Weather Emergency">
+                        🌧 Weather Emergency
+                    </option>
+
+                    <option value="Other">
+                        ⚠ Other
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label data-i18n="severity">
+                    Severity
+                </label>
+
+                <select id="incidentSeverity">
+
+                    <option value="LOW">
+                        Low
+                    </option>
+
+                    <option value="MEDIUM">
+                        Medium
+                    </option>
+
+                    <option value="HIGH">
+                        High
+                    </option>
+
+                    <option value="CRITICAL">
+                        Critical
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group full">
+
+                <label data-i18n="description">
+                    Description
+                </label>
+
+                <textarea id="incidentDescription"
+                          placeholder="Describe the incident..."></textarea>
+
+            </div>
+
+
+            <div class="full">
+
+                <button class="danger-btn"
+                        onclick="reportIncident()">
+
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+
+                    <span data-i18n="submitIncident">
+                        Submit Incident
+                    </span>
+
+                </button>
+
+            </div>
+
+            <div id="incidentMessage"
+                 class="full">
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- QUICK HELP -->
+
+    <section class="quick-help">
+
+        <button onclick="showEmergency()">
+
+            <i class="fa-solid fa-phone"></i>
+
+            <span data-i18n="emergency">
+                Emergency Help
+            </span>
+
+        </button>
+
+
+        <button onclick="findSafeRoute()">
+
+            <i class="fa-solid fa-route"></i>
+
+            <span data-i18n="safeRoute">
+                Find Safe Route
+            </span>
+
+        </button>
+
+    </section>
+
+</section>
+
+
+
+<!-- =========================================================
+     ADMIN PAGE
+========================================================= -->
+
+<section id="adminPage"
+         class="page">
+
+
+    <div class="admin-header">
+
+        <div>
+
+            <span class="small-heading">
+                CONTROL CENTER
+            </span>
+
+            <h1 data-i18n="adminDashboard">
+                Safety Operations Dashboard
+            </h1>
+
+            <p>
+                Privacy-conscious monitoring
+                and incident coordination
+            </p>
+
+        </div>
+
+
+        <div id="adminOverallStatus"
+             class="status-pill">
+            SYSTEM SAFE
+        </div>
+
+    </div>
+
+
+    <!-- STATISTICS -->
+
+    <div class="stats-grid">
+
+        <div class="stat-card">
+
+            <div class="stat-icon blue-icon">
+
+                <i class="fa-solid fa-users"></i>
+
+            </div>
+
+            <div>
+
+                <span>Total Visitors</span>
+
+                <strong id="totalVisitors">
+                    0
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-icon red-icon">
+
+                <i class="fa-solid fa-triangle-exclamation"></i>
+
+            </div>
+
+            <div>
+
+                <span>High Risk Zones</span>
+
+                <strong id="highRiskZones">
+                    0
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-icon orange-icon">
+
+                <i class="fa-solid fa-fire"></i>
+
+            </div>
+
+            <div>
+
+                <span>Open Incidents</span>
+
+                <strong id="openIncidents">
+                    0
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-icon green-icon">
+
+                <i class="fa-solid fa-shield"></i>
+
+            </div>
+
+            <div>
+
+                <span>System Health</span>
+
+                <strong>
+                    98%
+                </strong>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- AI CROWD MONITOR -->
+
+    <section class="admin-card">
+
+        <div class="section-heading">
+
+            <div>
+
+                <span class="small-heading">
+                    COMPUTER VISION
+                </span>
+
+                <h2>
+                    AI Crowd Monitoring
+                </h2>
+
+                <p class="section-description">
+                    Anonymous person detection.
+                    No face recognition or individual tracking.
+                </p>
+
+            </div>
+
+
+            <span id="cameraStatus"
+                  class="camera-status">
+                Camera Offline
+            </span>
+
+        </div>
+
+
+        <div class="ai-monitor">
+
+            <div class="camera-container">
+
+                <video id="camera"
+                       autoplay
+                       muted
+                       playsinline>
+                </video>
+
+                <canvas id="cameraCanvas"></canvas>
+
+                <div id="cameraOverlay"
+                     class="camera-overlay">
+
+                    <i class="fa-solid fa-camera"></i>
+
+                    <span>
+                        Start camera to begin
+                        AI crowd detection
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="ai-results">
+
+                <div class="ai-count">
+
+                    <span>
+                        People Detected
+                    </span>
+
+                    <strong id="peopleDetected">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="ai-confidence">
+
+                    <span>
+                        AI Model
+                    </span>
+
+                    <strong id="aiModelStatus">
+                        Not Loaded
+                    </strong>
+
+                </div>
+
+
+                <select id="aiZone">
+
+                    <option value="0">
+                        Temple Entrance
+                    </option>
+
+                    <option value="1">
+                        Main Temple
+                    </option>
+
+                    <option value="2">
+                        Mountain Path
+                    </option>
+
+                    <option value="3">
+                        Parking Area
+                    </option>
+
+                </select>
+
+
+                <button class="primary-btn"
+                        onclick="startCamera()">
+
+                    <i class="fa-solid fa-video"></i>
+
+                    Start AI Camera
+
+                </button>
+
+
+                <button class="secondary-btn"
+                        onclick="stopCamera()">
+
+                    <i class="fa-solid fa-stop"></i>
+
+                    Stop Camera
+
+                </button>
+
+
+                <div class="privacy-note">
+
+                    <i class="fa-solid fa-lock"></i>
+
+                    <span>
+                        Privacy mode:
+                        Only anonymous people counts
+                        are retained.
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ZONE MONITOR -->
+
+    <section class="admin-card">
+
+        <div class="section-heading">
+
+            <div>
+
+                <span class="small-heading">
+                    LIVE ZONE MONITOR
+                </span>
+
+                <h2>
+                    Crowd & Risk Analysis
+                </h2>
+
+            </div>
+
+            <button class="small-btn"
+                    onclick="simulateCrowd()">
+
+                Simulate Crowd
+
+            </button>
+
+        </div>
+
+
+        <div id="adminZones"
+             class="admin-zones">
+        </div>
+
+    </section>
+
+
+    <!-- INCIDENT MANAGEMENT -->
+
+    <section class="admin-card">
+
+        <div class="section-heading">
+
+            <div>
+
+                <span class="small-heading">
+                    INCIDENT CENTER
+                </span>
+
+                <h2>
+                    Active Incidents
+                </h2>
+
+            </div>
+
+            <button class="small-btn"
+                    onclick="clearResolvedIncidents()">
+
+                Clear Resolved
+
+            </button>
+
+        </div>
+
+
+        <div id="adminIncidents">
+        </div>
+
+    </section>
+
+
+    <!-- CONDITIONS -->
+
+    <section class="admin-card">
+
+        <div class="section-heading">
+
+            <div>
+
+                <span class="small-heading">
+                    ENVIRONMENT
+                </span>
+
+                <h2>
+                    Weather & Transport
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <div class="conditions-grid">
+
+            <div class="condition-card">
+
+                <i class="fa-solid fa-cloud-rain"></i>
+
+                <h3>
+                    Weather
+                </h3>
+
+                <strong id="adminWeather">
+                    27°C
+                </strong>
+
+                <p id="adminWeatherStatus">
+                    Partly Cloudy
+                </p>
+
+            </div>
+
+
+            <div class="condition-card">
+
+                <i class="fa-solid fa-bus"></i>
+
+                <h3>
+                    Transport
+                </h3>
+
+                <strong id="adminTransport">
+                    Normal
+                </strong>
+
+                <p>
+                    Shuttle services operational
+                </p>
+
+            </div>
+
+
+            <div class="condition-card">
+
+                <i class="fa-solid fa-cloud"></i>
+
+                <h3>
+                    Connectivity
+                </h3>
+
+                <strong id="connectionStatus">
+                    Online
+                </strong>
+
+                <p>
+                    Offline cache enabled
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ACTION CENTER -->
+
+    <section class="admin-card">
+
+        <div class="section-heading">
+
+            <div>
+
+                <span class="small-heading">
+                    RESPONSE
+                </span>
+
+                <h2>
+                    Emergency Actions
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <div class="action-grid">
+
+            <button class="action-button"
+                    onclick="broadcastAlert()">
+
+                <i class="fa-solid fa-bullhorn"></i>
+
+                Broadcast Alert
+
+            </button>
+
+
+            <button class="action-button"
+                    onclick="closeDangerZone()">
+
+                <i class="fa-solid fa-ban"></i>
+
+                Close Danger Zone
+
+            </button>
+
+
+            <button class="action-button"
+                    onclick="sendEmergency()">
+
+                <i class="fa-solid fa-truck-medical"></i>
+
+                Contact Emergency
+
+            </button>
+
+
+            <button class="action-button"
+                    onclick="findAlternateRoute()">
+
+                <i class="fa-solid fa-route"></i>
+
+                Open Alternate Route
+
+            </button>
+
+        </div>
+
+    </section>
+
+</section>
+
+</main>
+
+
+<!-- =========================================================
+     MODAL
+========================================================= -->
+
+<div id="modal"
+     class="modal">
+
+    <div class="modal-content">
+
+        <button class="modal-close"
+                onclick="closeModal()">
+
+            ×
+
+        </button>
+
+        <div id="modalContent">
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     TOAST
+========================================================= -->
+
+<div id="toast"
+     class="toast">
+
+    <i class="fa-solid fa-circle-check"></i>
+
+    <span id="toastText">
+        Done
+    </span>
+
+</div>
+
+
+<script src="script.js"></script>
+
+</body>
+
+</html>

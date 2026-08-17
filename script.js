@@ -756,9 +756,6 @@ function renderEverything() {
 
 function renderVisitor() {
 
-    renderVisitorZones();
-
-
     let totalPeople = 0;
 
     let totalCapacity = 0;
@@ -903,113 +900,6 @@ function setVisitorRisk(score) {
             "#dc2626";
 
     }
-
-}
-
-
-/* =========================================================
-   VISITOR ZONES
-========================================================= */
-
-function renderVisitorZones() {
-
-    const container =
-        document.getElementById(
-            "visitorZones"
-        );
-
-
-    container.innerHTML = "";
-
-
-    zones.forEach(zone => {
-
-        const div =
-            document.createElement(
-                "div"
-            );
-
-
-        div.className =
-            "zone-card " +
-            zone.status.toLowerCase();
-
-
-        div.innerHTML = `
-
-            <div class="zone-top">
-
-                <h3>
-                    ${getZoneIcon(zone.status)}
-                    ${zone.name}
-                </h3>
-
-                <span class="zone-status ${zone.status.toLowerCase()}">
-                    ${zone.status}
-                </span>
-
-            </div>
-
-
-            <div class="zone-info">
-
-                <div>
-
-                    <span>Visitors</span>
-
-                    <strong>
-                        ${zone.people}
-                    </strong>
-
-                </div>
-
-
-                <div>
-
-                    <span>Capacity</span>
-
-                    <strong>
-                        ${zone.capacity}
-                    </strong>
-
-                </div>
-
-
-                <div>
-
-                    <span>Risk</span>
-
-                    <strong>
-                        ${zone.risk}/100
-                    </strong>
-
-                </div>
-
-
-                <div>
-
-                    <span>Incidents</span>
-
-                    <strong>
-                        ${
-                            incidents.filter(
-                                i =>
-                                    i.zoneId === zone.id &&
-                                    i.status === "OPEN"
-                            ).length
-                        }
-                    </strong>
-
-                </div>
-
-            </div>
-
-        `;
-
-
-        container.appendChild(div);
-
-    });
 
 }
 
@@ -1233,9 +1123,10 @@ function renderAdminIncidents() {
                         Zone:
                     </strong>
 
-                    ${zone
-                        ? zone.name
-                        : "Unknown"
+                    ${incident.zoneName ||
+                        (zone
+                            ? zone.name
+                            : "Unknown")
                     }
                 </p>
 
@@ -1393,16 +1284,16 @@ function updateAdminStatus() {
 
 function populateIncidentZones() {
 
-    const select =
+    const datalist =
         document.getElementById(
-            "incidentZone"
+            "incidentZoneList"
         );
 
 
-    if (!select) return;
+    if (!datalist) return;
 
 
-    select.innerHTML = "";
+    datalist.innerHTML = "";
 
 
     zones.forEach(zone => {
@@ -1414,14 +1305,10 @@ function populateIncidentZones() {
 
 
         option.value =
-            zone.id;
-
-
-        option.textContent =
             zone.name;
 
 
-        select.appendChild(
+        datalist.appendChild(
             option
         );
 
@@ -1436,12 +1323,10 @@ function populateIncidentZones() {
 
 function reportIncident() {
 
-    const zoneId =
-        Number(
-            document.getElementById(
-                "incidentZone"
-            ).value
-        );
+    const zoneText =
+        document.getElementById(
+            "incidentZone"
+        ).value.trim();
 
 
     const type =
@@ -1462,6 +1347,17 @@ function reportIncident() {
         ).value.trim();
 
 
+    if (!zoneText) {
+
+        showToast(
+            "Please enter a location or zone"
+        );
+
+        return;
+
+    }
+
+
     if (!description) {
 
         showToast(
@@ -1473,13 +1369,36 @@ function reportIncident() {
     }
 
 
+    /*
+       Try to match the typed text
+       to a known monitored zone
+       (case-insensitive). If it
+       doesn't match, we still accept
+       it as a free-text location.
+    */
+
+    const matchedZone =
+        zones.find(
+            zone =>
+                zone.name.toLowerCase() ===
+                zoneText.toLowerCase()
+        );
+
+
     const incident = {
 
         id:
             Date.now(),
 
         zoneId:
-            zoneId,
+            matchedZone
+                ? matchedZone.id
+                : null,
+
+        zoneName:
+            matchedZone
+                ? matchedZone.name
+                : zoneText,
 
         type:
             type,
@@ -1511,6 +1430,11 @@ function reportIncident() {
 
     document.getElementById(
         "incidentDescription"
+    ).value = "";
+
+
+    document.getElementById(
+        "incidentZone"
     ).value = "";
 
 

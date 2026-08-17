@@ -8,7 +8,7 @@ This project was developed as part of **SOA Ideathon 2026** by the following tea
 | **Ankur Gupta** | Head of Algorithm Design |  Designed, developed, and implemented the core algorithms that form the foundation of the project. |
 | **Nityam Mishra** | Debugging & Error Resolution | Identified, analyzed, and resolved software issues to improve system reliability, performance, and overall functionality. |
 | **Munaf Naiyer** | Testing & Quality Assurance | Conducted systematic testing, identified potential issues, and ensured the stability, functionality, and quality of the system. |
-| **Komal** |  Presentation and Logic Development |Designed and organized presentation materials while contributing to logical problem-solving and the development of project solutions. |
+| **Komal Kumari** |  Presentation and Logic Development |Designed and organized presentation materials while contributing to logical problem-solving and the development of project solutions. |
 | **Shubhashree Dutta** | Web Developer and Human Resource Manager | Developed the web interface, integrated front-end features, and coordinated team communication. |
 
 ---

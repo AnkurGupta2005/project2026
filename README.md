@@ -4,7 +4,7 @@ This project was developed as part of **SOA Ideathon 2026** by the following tea
 
 | **Name** | **Role** | **Responsibilities** |
 |-----------|-----------|----------------------|
-| **Alok ** | Team Leader and Coordinator | Guided the team, managed tasks, and ensured timely progress throughout the project. |
+| **Alok** | Team Leader and Coordinator | Guided the team, managed tasks, and ensured timely progress throughout the project. |
 | **ANKUR** | Head of Algorithm Designing Unit | Designed and implemented the core algorithms forming the foundation of the project. |
 | **Nityam Mishra** | Error Fixer | Identified, analyzed, and resolved bugs to ensure optimal performance and reliability. |
 

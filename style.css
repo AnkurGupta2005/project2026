@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -28,6 +30,192 @@
     --shadow:
         0 10px 30px rgba(20, 30, 50, 0.08);
 }
+
+/* =========================================================
+   DARK THEME
+========================================================= */
+
+body.dark-theme {
+    --bg: #0b1220;
+    --card: #151f35;
+    --text: #f8fafc;
+    --muted: #aeb8ca;
+    --border: #2a3853;
+
+    --blue-light: #1d355f;
+    --green-light: #153d2a;
+    --orange-light: #4a3510;
+    --red-light: #4a1f26;
+
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+}
+
+/* =========================================================
+   THEME TOGGLE
+========================================================= */
+
+.theme-toggle {
+    position: relative;
+    width: 76px;
+    height: 38px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: #ffffff;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 8px;
+    flex-shrink: 0;
+    transition: 0.25s ease;
+}
+
+.theme-toggle .theme-icon {
+    font-size: 15px;
+    line-height: 1;
+    z-index: 1;
+    transition: 0.25s ease;
+}
+
+.theme-toggle .sun-icon {
+    color: #f59e0b;
+}
+
+.theme-toggle .moon-icon {
+    color: #64748b;
+}
+
+.theme-toggle .toggle-knob {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #f59e0b;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+    transition: transform 0.25s ease, background 0.25s ease;
+}
+
+body.dark-theme .theme-toggle {
+    background: #111827;
+    border-color: #334155;
+}
+
+body.dark-theme .theme-toggle .toggle-knob {
+    transform: translateX(38px);
+    background: #2563eb;
+}
+
+body.dark-theme .theme-toggle .sun-icon {
+    color: #64748b;
+}
+
+body.dark-theme .theme-toggle .moon-icon {
+    color: #e2e8f0;
+}
+
+/* =========================================================
+   DARK THEME COMPONENT OVERRIDES
+========================================================= */
+
+body.dark-theme .navbar {
+    background: rgba(11, 18, 32, 0.96);
+}
+
+body.dark-theme .hero {
+    background: linear-gradient(120deg, #17243d, #101827);
+}
+
+body.dark-theme .hero-icon > i {
+    background: #18243b;
+}
+
+body.dark-theme .safety-card,
+body.dark-theme .map-card,
+body.dark-theme .incident-form,
+body.dark-theme .stat-card,
+body.dark-theme .admin-card,
+body.dark-theme .incident-card,
+body.dark-theme .modal-content,
+body.dark-theme .action-button {
+    background: var(--card);
+}
+
+body.dark-theme .zone-card {
+    background: var(--card);
+}
+
+body.dark-theme .zone-info div,
+body.dark-theme .ai-results,
+body.dark-theme .condition-card {
+    background: #101827;
+}
+
+body.dark-theme .form-group select,
+body.dark-theme .form-group textarea {
+    background: #101827;
+    color: var(--text);
+}
+
+body.dark-theme #languageSelect {
+    background: #151f35;
+    color: var(--text);
+}
+
+body.dark-theme .alert-box {
+    background: #fff2bf;
+    border-color: #f2d675;
+}
+
+/* Safety advisory MUST remain readable in dark mode. */
+.alert-box h3,
+.alert-box p {
+    color: #000000 !important;
+}
+
+body.dark-theme .alert-box h3,
+body.dark-theme .alert-box p {
+    color: #000000 !important;
+}
+
+body.dark-theme .location-result {
+    background: #101827;
+}
+
+body.dark-theme .camera-status {
+    background: #1e293b;
+}
+
+body.dark-theme .modal-content {
+    color: var(--text);
+}
+
+body.dark-theme .nav-btn {
+    color: var(--muted);
+}
+
+body.dark-theme .nav-btn.active {
+    background: var(--blue-light);
+    color: #60a5fa;
+}
+
+body.dark-theme input,
+body.dark-theme select,
+body.dark-theme textarea {
+    color: var(--text);
+}
+
+@media(max-width: 750px) {
+    .theme-toggle {
+        width: 70px;
+    }
+
+    body.dark-theme .theme-toggle .toggle-knob {
+        transform: translateX(32px);
+    }
+}
+
 
 html {
     scroll-behavior: smooth;
@@ -2054,4 +2242,34 @@ main {
         grid-template-columns:
             1fr;
     }
+}
+
+/* =========================================================
+   QUICK HELP - DARK/LIGHT THEME VISIBILITY
+========================================================= */
+
+.quick-help button {
+    background: var(--red) !important;
+    color: #ffffff !important;
+    border: 1px solid var(--red) !important;
+}
+
+.quick-help button:hover {
+    background: #b91c1c !important;
+    color: #ffffff !important;
+    transform: translateY(-1px);
+}
+
+.quick-help button i,
+.quick-help button span {
+    color: #ffffff !important;
+}
+
+body.dark-theme .quick-help button {
+    background: var(--red) !important;
+    color: #ffffff !important;
+}
+
+body.dark-theme .quick-help button:hover {
+    background: #b91c1c !important;
 }

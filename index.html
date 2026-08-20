@@ -7,7 +7,7 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>PilgrimSafe AI</title>
+    <title>Safe Yatri AI</title>
 
     <!-- TensorFlow.js -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
@@ -32,7 +32,7 @@
 
     <div class="logo">
         <i class="fa-solid fa-shield-halved"></i>
-        <span data-i18n="appName">PilgrimSafe AI</span>
+        <span data-i18n="appName">Safe Yatri AI</span>
     </div>
 
     <div class="nav-buttons">
@@ -104,12 +104,14 @@
             </h1>
 
             <p data-i18n="heroText">
-                Real-time crowd monitoring, incident reporting,
-                weather intelligence and location-based safety alerts.
+                Safe Yatri AI keeps pilgrims and visitors safe at BHU with
+                real-time crowd monitoring, instant weather broadcasts,
+                nearby facility locations, fast incident reporting and
+                emergency response — even in low-connectivity areas.
             </p>
 
             <button class="primary-btn"
-                    onclick="scrollToSection('visitorSafety')">
+                    onclick="checkMySafety()">
 
                 <i class="fa-solid fa-shield"></i>
                 <span data-i18n="checkSafety">
@@ -194,35 +196,6 @@
             </div>
 
 
-            <!-- Crowd -->
-
-            <div class="safety-card">
-
-                <div class="card-icon blue-icon">
-
-                    <i class="fa-solid fa-people-group"></i>
-
-                </div>
-
-                <div>
-
-                    <p data-i18n="crowdLevel">
-                        Crowd Level
-                    </p>
-
-                    <h3 id="visitorCrowd">
-                        Moderate
-                    </h3>
-
-                    <span id="visitorCrowdPeople">
-                        95 visitors
-                    </span>
-
-                </div>
-
-            </div>
-
-
             <!-- Weather -->
 
             <div class="safety-card">
@@ -236,7 +209,7 @@
                 <div>
 
                     <p data-i18n="weather">
-                        Weather
+                        Weather (BHU)
                     </p>
 
                     <h3 id="visitorWeather">
@@ -309,12 +282,23 @@
 
         </div>
 
+        <button class="small-btn broadcast-weather-btn"
+                onclick="broadcastWeatherUpdate()">
+
+            <i class="fa-solid fa-bullhorn"></i>
+
+            <span data-i18n="broadcastWeather">
+                Broadcast BHU Weather
+            </span>
+
+        </button>
+
     </section>
 
 
     <!-- MAP -->
 
-    <section class="section">
+    <section class="section" id="locationSection">
 
         <div class="section-heading">
 
@@ -350,6 +334,43 @@
 
             <div id="locationResult"
                  class="location-result">
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- NEARBY FACILITIES -->
+
+    <section class="section">
+
+        <div class="section-heading">
+
+            <div>
+                <span class="small-heading">
+                    SAFETY SUPPORT
+                </span>
+
+                <h2 data-i18n="nearbyFacilities">
+                    Nearby Facilities
+                </h2>
+            </div>
+
+        </div>
+
+
+        <div class="map-card">
+
+            <p class="section-description"
+               id="facilitiesHint"
+               data-i18n="facilitiesHint">
+                Detect your location above to see the closest
+                hospital, washroom and medical camp.
+            </p>
+
+            <div id="facilitiesResult"
+                 class="facilities-list">
             </div>
 
         </div>
@@ -476,6 +497,37 @@
             </div>
 
 
+            <div class="form-group full">
+
+                <label data-i18n="incidentLocationLabel">
+                    Attach Your Location
+                </label>
+
+                <div class="incident-location-row">
+
+                    <button type="button"
+                            class="secondary-btn"
+                            onclick="attachIncidentLocation()">
+
+                        <i class="fa-solid fa-location-crosshairs"></i>
+
+                        <span data-i18n="attachLocation">
+                            Use My Current Location
+                        </span>
+
+                    </button>
+
+                    <span id="incidentLocationStatus"
+                          class="incident-location-status">
+                        No location attached yet — one will be
+                        fetched automatically when you submit.
+                    </span>
+
+                </div>
+
+            </div>
+
+
             <div class="full">
 
                 <button class="danger-btn"
@@ -504,26 +556,72 @@
 
     <section class="quick-help">
 
-        <button onclick="showEmergency()">
-
-            <i class="fa-solid fa-phone"></i>
-
-            <span data-i18n="emergency">
-                Emergency Help
-            </span>
-
-        </button>
-
-
-        <button onclick="findSafeRoute()">
+        <button onclick="findNearestEscapeRoute()">
 
             <i class="fa-solid fa-route"></i>
 
-            <span data-i18n="safeRoute">
-                Find Safe Route
+            <span data-i18n="escapeRoute">
+                Find Nearest Escape Route
             </span>
 
         </button>
+
+    </section>
+
+
+    <!-- ESCAPE ROUTE MAP -->
+
+    <section class="section" id="escapeMapSection">
+
+        <div class="section-heading">
+
+            <div>
+                <span class="small-heading">
+                    OFFLINE MAP
+                </span>
+
+                <h2 data-i18n="escapeMapTitle">
+                    Bhubaneswar City — Escape Route Map
+                </h2>
+            </div>
+
+            <span class="offline-badge">
+                <i class="fa-solid fa-wifi"></i>
+                Works Offline
+            </span>
+
+        </div>
+
+
+        <div class="map-card">
+
+            <p class="section-description">
+                A stored map of the Bhubaneswar area with all
+                safety zones and facilities. Locate your position
+                to see your nearest escape route — this works
+                even without an internet connection.
+            </p>
+
+            <button class="secondary-btn"
+                    onclick="locateOnEscapeMap()">
+
+                <i class="fa-solid fa-location-crosshairs"></i>
+
+                <span data-i18n="locateOnMap">
+                    Locate My Position
+                </span>
+
+            </button>
+
+            <div id="escapeMapContainer"
+                 class="escape-map-container">
+            </div>
+
+            <div id="escapeRouteSummary"
+                 class="escape-route-summary">
+            </div>
+
+        </div>
 
     </section>
 
@@ -1073,7 +1171,7 @@
     // Dark / Light theme toggle
     (function () {
         const toggle = document.getElementById("themeToggle");
-        const savedTheme = localStorage.getItem("pilgrimSafeTheme");
+        const savedTheme = localStorage.getItem("safeYatriTheme");
 
         if (savedTheme === "dark") {
             document.body.classList.add("dark-theme");
@@ -1084,7 +1182,7 @@
 
             const isDark = document.body.classList.contains("dark-theme");
             localStorage.setItem(
-                "pilgrimSafeTheme",
+                "safeYatriTheme",
                 isDark ? "dark" : "light"
             );
         });

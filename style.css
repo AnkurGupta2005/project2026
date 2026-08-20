@@ -697,7 +697,7 @@ main {
     display: grid;
 
     grid-template-columns:
-        repeat(4, 1fr);
+        repeat(3, 1fr);
 
     gap: 18px;
 }
@@ -876,9 +876,39 @@ main {
 
     align-items: center;
 
+    flex-wrap: wrap;
+
     gap: 16px;
 
     margin-bottom: 40px;
+}
+
+
+.alert-box .broadcast-weather-btn {
+
+    margin-left: auto;
+
+    white-space: nowrap;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 8px;
+}
+
+
+@media(max-width: 750px) {
+
+    .alert-box .broadcast-weather-btn {
+
+        margin-left: 0;
+
+        width: 100%;
+
+        justify-content: center;
+    }
+
 }
 
 
@@ -1110,6 +1140,161 @@ main {
 
 
 /* =========================================================
+   ESCAPE ROUTE MAP
+========================================================= */
+
+.escape-map-container {
+
+    margin-top: 18px;
+
+    border-radius: 16px;
+
+    overflow: hidden;
+
+    line-height: 0;
+}
+
+
+.escape-route-summary {
+
+    margin-top: 15px;
+
+    padding: 15px;
+
+    background:
+        #f8fafc;
+
+    border-radius: 10px;
+
+    color:
+        var(--text);
+}
+
+
+body.dark-theme .escape-route-summary {
+
+    background:
+        var(--card);
+}
+
+
+.offline-badge {
+
+    display:
+        inline-flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    padding: 6px 12px;
+
+    border-radius: 999px;
+
+    background:
+        var(--green-light);
+
+    color:
+        var(--green);
+
+    font-size: 12px;
+
+    font-weight: 800;
+
+    white-space: nowrap;
+
+    height: fit-content;
+}
+
+
+/* =========================================================
+   NEARBY FACILITIES
+========================================================= */
+
+.facilities-list {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 12px;
+}
+
+
+.facilities-list:not(:empty) {
+
+    margin-top: 18px;
+}
+
+
+.facility-item {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 14px;
+
+    padding: 14px 16px;
+
+    background:
+        #f8fafc;
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 10px;
+}
+
+
+.facility-icon {
+
+    font-size: 22px;
+
+    width: 42px;
+
+    height: 42px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background:
+        var(--blue-light);
+
+    border-radius: 10px;
+}
+
+
+.facility-item strong {
+
+    display: block;
+
+    margin-bottom: 2px;
+}
+
+
+.facility-item p {
+
+    color:
+        var(--muted);
+
+    font-size: 14px;
+}
+
+
+body.dark-theme .facility-item {
+
+    background:
+        var(--card);
+}
+
+
+/* =========================================================
    FORM
 ========================================================= */
 
@@ -1194,6 +1379,27 @@ main {
 }
 
 
+.incident-location-row {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 14px;
+
+    flex-wrap: wrap;
+}
+
+
+.incident-location-status {
+
+    color:
+        var(--muted);
+
+    font-size: 13px;
+}
+
+
 /* =========================================================
    QUICK HELP
 ========================================================= */
@@ -1204,7 +1410,7 @@ main {
         grid;
 
     grid-template-columns:
-        1fr 1fr;
+        1fr;
 
     gap: 15px;
 

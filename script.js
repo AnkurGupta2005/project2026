@@ -31,8 +31,8 @@ let zones = [
         risk: 20,
         weatherRisk: 20,
         status: "SAFE",
-        lat: 28.6139,
-        lng: 77.2090
+        lat: 20.2380,
+        lng: 85.8315
     },
 
     {
@@ -43,8 +43,8 @@ let zones = [
         risk: 55,
         weatherRisk: 20,
         status: "WARNING",
-        lat: 28.6145,
-        lng: 77.2080
+        lat: 20.2388,
+        lng: 85.8322
     },
 
     {
@@ -55,8 +55,8 @@ let zones = [
         risk: 90,
         weatherRisk: 30,
         status: "DANGER",
-        lat: 28.6150,
-        lng: 77.2070
+        lat: 20.2408,
+        lng: 85.8345
     },
 
     {
@@ -67,14 +67,84 @@ let zones = [
         risk: 25,
         weatherRisk: 10,
         status: "SAFE",
-        lat: 28.6125,
-        lng: 77.2100
+        lat: 20.2362,
+        lng: 85.8298
     }
 
 ];
 
 
 let incidents = [];
+
+
+let facilities = [
+
+    {
+        name: "Bhubaneswar Trauma & Emergency Hospital",
+        type: "Hospital",
+        icon: "🏥",
+        lat: 20.2392,
+        lng: 85.8328
+    },
+
+    {
+        name: "Public Washroom - Main Gate",
+        type: "Washroom",
+        icon: "🚻",
+        lat: 20.2367,
+        lng: 85.8302
+    },
+
+    {
+        name: "Medical Camp - Temple Grounds",
+        type: "Medical Camp",
+        icon: "⛑️",
+        lat: 20.2384,
+        lng: 85.8318
+    },
+
+    {
+        name: "Bhubaneswar City Fire Department",
+        type: "Fire Department",
+        icon: "🚒",
+        lat: 20.2355,
+        lng: 85.8285
+    },
+
+    {
+        name: "Site Security & Police Post",
+        type: "Security",
+        icon: "🚓",
+        lat: 20.2412,
+        lng: 85.8350
+    }
+
+];
+
+
+let userLocation = null;
+
+
+/*
+   Location manually attached to an
+   incident report. Falls back to
+   userLocation, then a live geolocation
+   fetch, if not set.
+*/
+
+let incidentLocation = null;
+
+
+/*
+   Drive the visitor-facing risk meter
+   from weather + transport conditions
+   only (not crowd counts). Updated by
+   simulateEnvironmentalChanges().
+*/
+
+let currentWeatherRisk = 20;
+
+let currentTransportRisk = 10;
 
 
 let currentLanguage = "en";
@@ -95,7 +165,7 @@ const translations = {
 
     en: {
 
-        appName: "PilgrimSafe AI",
+        appName: "Safe Yatri AI",
 
         visitor: "Visitor",
 
@@ -105,7 +175,7 @@ const translations = {
             "Safer Pilgrimage. Smarter Crowd Management.",
 
         heroText:
-            "Real-time crowd monitoring, incident reporting, weather intelligence and location-based safety alerts.",
+            "Safe Yatri AI keeps pilgrims and visitors safe at BHU with real-time crowd monitoring, instant weather broadcasts, nearby facility locations, fast incident reporting and emergency response — even in low-connectivity areas.",
 
         checkSafety:
             "Check My Safety",
@@ -120,10 +190,19 @@ const translations = {
             "Crowd Level",
 
         weather:
-            "Weather",
+            "Weather (BHU)",
 
         transport:
             "Transport",
+
+        nearbyFacilities:
+            "Nearby Facilities",
+
+        facilitiesHint:
+            "Detect your location above to see the closest hospital, washroom and medical camp.",
+
+        broadcastWeather:
+            "Broadcast BHU Weather",
 
         siteZones:
             "Site Safety Zones",
@@ -158,6 +237,21 @@ const translations = {
         safeRoute:
             "Find Safe Route",
 
+        escapeRoute:
+            "Find Nearest Escape Route",
+
+        escapeMapTitle:
+            "Bhubaneswar City — Escape Route Map",
+
+        locateOnMap:
+            "Locate My Position",
+
+        incidentLocationLabel:
+            "Attach Your Location",
+
+        attachLocation:
+            "Use My Current Location",
+
         adminDashboard:
             "Safety Operations Dashboard"
 
@@ -166,7 +260,7 @@ const translations = {
 
     hi: {
 
-        appName: "पिलग्रिमसेफ AI",
+        appName: "Safe Yatri AI",
 
         visitor: "यात्री",
 
@@ -229,15 +323,39 @@ const translations = {
         safeRoute:
             "सुरक्षित मार्ग खोजें",
 
+        escapeRoute:
+            "निकटतम निकासी मार्ग खोजें",
+
+        escapeMapTitle:
+            "भुवनेश्वर शहर — निकासी मार्ग मानचित्र",
+
+        locateOnMap:
+            "मेरी स्थिति पता करें",
+
+        incidentLocationLabel:
+            "अपना स्थान जोड़ें",
+
+        attachLocation:
+            "मेरा वर्तमान स्थान उपयोग करें",
+
         adminDashboard:
-            "सुरक्षा संचालन डैशबोर्ड"
+            "सुरक्षा संचालन डैशबोर्ड",
+
+        nearbyFacilities:
+            "नज़दीकी सुविधाएं",
+
+        facilitiesHint:
+            "निकटतम अस्पताल, शौचालय और मेडिकल कैंप देखने के लिए ऊपर अपना स्थान पता करें।",
+
+        broadcastWeather:
+            "BHU मौसम प्रसारित करें"
 
     },
 
 
     bn: {
 
-        appName: "পিলগ্রিমসেফ AI",
+        appName: "Safe Yatri AI",
 
         visitor: "দর্শনার্থী",
 
@@ -300,15 +418,39 @@ const translations = {
         safeRoute:
             "নিরাপদ পথ খুঁজুন",
 
+        escapeRoute:
+            "নিকটতম নিষ্ক্রমণ পথ খুঁজুন",
+
+        escapeMapTitle:
+            "ভুবনেশ্বর শহর — নিষ্ক্রমণ পথের মানচিত্র",
+
+        locateOnMap:
+            "আমার অবস্থান শনাক্ত করুন",
+
+        incidentLocationLabel:
+            "আপনার অবস্থান যুক্ত করুন",
+
+        attachLocation:
+            "আমার বর্তমান অবস্থান ব্যবহার করুন",
+
         adminDashboard:
-            "নিরাপত্তা অপারেশন ড্যাশবোর্ড"
+            "নিরাপত্তা অপারেশন ড্যাশবোর্ড",
+
+        nearbyFacilities:
+            "নিকটবর্তী সুবিধা",
+
+        facilitiesHint:
+            "নিকটতম হাসপাতাল, ওয়াশরুম এবং মেডিকেল ক্যাম্প দেখতে উপরে আপনার অবস্থান শনাক্ত করুন।",
+
+        broadcastWeather:
+            "BHU আবহাওয়া প্রচার করুন"
 
     },
 
 
     ta: {
 
-        appName: "பில்கிரிம்சேஃப் AI",
+        appName: "Safe Yatri AI",
 
         visitor: "பார்வையாளர்",
 
@@ -371,8 +513,32 @@ const translations = {
         safeRoute:
             "பாதுகாப்பான பாதையைத் தேடுங்கள்",
 
+        escapeRoute:
+            "அருகிலுள்ள வெளியேறும் பாதையைத் தேடுங்கள்",
+
+        escapeMapTitle:
+            "புவனேஸ்வர் நகரம் — வெளியேறும் பாதை வரைபடம்",
+
+        locateOnMap:
+            "எனது இருப்பிடத்தைக் கண்டறியவும்",
+
+        incidentLocationLabel:
+            "உங்கள் இருப்பிடத்தை இணைக்கவும்",
+
+        attachLocation:
+            "எனது தற்போதைய இருப்பிடத்தைப் பயன்படுத்தவும்",
+
         adminDashboard:
-            "பாதுகாப்பு செயல்பாட்டு டாஷ்போர்டு"
+            "பாதுகாப்பு செயல்பாட்டு டாஷ்போர்டு",
+
+        nearbyFacilities:
+            "அருகிலுள்ள வசதிகள்",
+
+        facilitiesHint:
+            "அருகிலுள்ள மருத்துவமனை, கழிப்பறை மற்றும் மருத்துவ முகாமைக் காண மேலே உங்கள் இருப்பிடத்தைக் கண்டறியவும்.",
+
+        broadcastWeather:
+            "BHU வானிலையை ஒளிபரப்பவும்"
 
     }
 
@@ -426,12 +592,12 @@ document.addEventListener(
 function saveData() {
 
     localStorage.setItem(
-        "pilgrimZones",
+        "safeYatriZones",
         JSON.stringify(zones)
     );
 
     localStorage.setItem(
-        "pilgrimIncidents",
+        "safeYatriIncidents",
         JSON.stringify(incidents)
     );
 }
@@ -441,12 +607,12 @@ function loadData() {
 
     const storedZones =
         localStorage.getItem(
-            "pilgrimZones"
+            "safeYatriZones"
         );
 
     const storedIncidents =
         localStorage.getItem(
-            "pilgrimIncidents"
+            "safeYatriIncidents"
         );
 
 
@@ -543,6 +709,28 @@ function showPage(page) {
         renderAdmin();
 
     }
+
+}
+
+
+/* =========================================================
+   CHECK MY SAFETY
+========================================================= */
+
+function checkMySafety() {
+
+    /*
+       "Check my safety" takes the visitor
+       straight to the location detector so
+       they can see conditions for their
+       own area, rather than a static scroll.
+    */
+
+    scrollToSection(
+        "locationSection"
+    );
+
+    getUserLocation();
 
 }
 
@@ -745,6 +933,12 @@ function renderEverything() {
 
     populateIncidentZones();
 
+    renderEscapeMap();
+
+    renderEscapeRouteSummary();
+
+    refreshIncidentLocationStatus();
+
     saveData();
 
 }
@@ -756,87 +950,45 @@ function renderEverything() {
 
 function renderVisitor() {
 
-    let totalPeople = 0;
+    /*
+       The visitor-facing risk meter is
+       driven only by current weather and
+       transport conditions — no crowd or
+       public headcount is shown here.
+       Detailed crowd/incident risk stays
+       on the admin dashboard.
+    */
 
-    let totalCapacity = 0;
-
-    let highestRisk = 0;
-
-
-    zones.forEach(zone => {
-
-        totalPeople +=
-            zone.people;
-
-        totalCapacity +=
-            zone.capacity;
-
-        highestRisk =
-            Math.max(
-                highestRisk,
-                zone.risk
-            );
-
-    });
+    const publicRisk =
+        computeVisitorRisk();
 
 
     setVisitorRisk(
-        highestRisk
+        publicRisk
     );
 
 
-    let crowdText;
-
-
-    const occupancy =
-        (
-            totalPeople /
-            totalCapacity
-        ) * 100;
-
-
-    if (occupancy < 50) {
-
-        crowdText = "Low";
-
-    }
-    else if (occupancy < 75) {
-
-        crowdText = "Moderate";
-
-    }
-    else if (occupancy < 100) {
-
-        crowdText = "High";
-
-    }
-    else {
-
-        crowdText = "Very High";
-
-    }
-
-
-    document.getElementById(
-        "visitorCrowd"
-    ).textContent =
-        crowdText;
-
-
-    document.getElementById(
-        "visitorCrowdPeople"
-    ).textContent =
-        `${totalPeople} visitors`;
-
-
-    updateAlert(highestRisk);
+    updateAlert(publicRisk);
 
 }
 
 
 /* =========================================================
-   VISITOR RISK
+   VISITOR RISK (WEATHER + TRANSPORT)
 ========================================================= */
+
+function computeVisitorRisk() {
+
+    return Math.round(
+
+        currentWeatherRisk * 0.5 +
+
+        currentTransportRisk * 0.5
+
+    );
+
+}
+
 
 function setVisitorRisk(score) {
 
@@ -920,8 +1072,6 @@ function renderAdmin() {
     renderAdminIncidents();
 
     updateAdminStats();
-
-    updateAdminConditions();
 
     updateAdminStatus();
 
@@ -1321,7 +1471,240 @@ function populateIncidentZones() {
    REPORT INCIDENT
 ========================================================= */
 
-function reportIncident() {
+/*
+   Map each incident type to the kind of
+   facility that should respond to it.
+*/
+
+function getRespondingFacility(type) {
+
+    const typeMap = {
+
+        "Medical Emergency":
+            "Hospital",
+
+        "Fire":
+            "Fire Department",
+
+        "Crowd Problem":
+            "Security",
+
+        "Blocked Path":
+            "Security",
+
+        "Weather Emergency":
+            "Medical Camp",
+
+        "Other":
+            "Security"
+
+    };
+
+
+    const desiredType =
+        typeMap[type] ||
+        "Security";
+
+
+    return (
+
+        facilities.find(
+            facility =>
+                facility.type ===
+                desiredType
+        ) ||
+
+        facilities[0]
+
+    );
+
+}
+
+
+/*
+   Resolve which location to send with
+   an incident report: a manually
+   attached location first, then the
+   last detected user location, then a
+   fresh live geolocation fetch.
+*/
+
+function resolveIncidentLocation() {
+
+    return new Promise(resolve => {
+
+        if (incidentLocation) {
+
+            resolve(incidentLocation);
+
+            return;
+
+        }
+
+
+        if (userLocation) {
+
+            resolve(userLocation);
+
+            return;
+
+        }
+
+
+        if (!navigator.geolocation) {
+
+            resolve(null);
+
+            return;
+
+        }
+
+
+        navigator.geolocation.getCurrentPosition(
+
+            position => {
+
+                const location = {
+
+                    lat:
+                        position.coords.latitude,
+
+                    lng:
+                        position.coords.longitude
+
+                };
+
+
+                userLocation =
+                    location;
+
+
+                resolve(location);
+
+            },
+
+            () => resolve(null),
+
+            { timeout: 6000 }
+
+        );
+
+    });
+
+}
+
+
+function attachIncidentLocation() {
+
+    const status =
+        document.getElementById(
+            "incidentLocationStatus"
+        );
+
+
+    if (!navigator.geolocation) {
+
+        if (status) {
+
+            status.textContent =
+                "Geolocation is not supported by this browser.";
+
+        }
+
+        return;
+
+    }
+
+
+    if (status) {
+
+        status.textContent =
+            "Detecting your location...";
+
+    }
+
+
+    navigator.geolocation.getCurrentPosition(
+
+        position => {
+
+            incidentLocation = {
+
+                lat:
+                    position.coords.latitude,
+
+                lng:
+                    position.coords.longitude
+
+            };
+
+
+            refreshIncidentLocationStatus();
+
+
+            showToast(
+                "Location attached to incident report"
+            );
+
+        },
+
+        error => {
+
+            console.error(error);
+
+
+            if (status) {
+
+                status.textContent =
+                    "Could not access your location. You can still submit — one will be requested automatically.";
+
+            }
+
+        }
+
+    );
+
+}
+
+
+function refreshIncidentLocationStatus() {
+
+    const status =
+        document.getElementById(
+            "incidentLocationStatus"
+        );
+
+
+    if (!status) return;
+
+
+    if (incidentLocation) {
+
+        status.textContent =
+            `Location attached: ${incidentLocation.lat.toFixed(5)}, ${incidentLocation.lng.toFixed(5)}`;
+
+    }
+    else if (userLocation) {
+
+        status.textContent =
+            `Using your last detected location automatically (${userLocation.lat.toFixed(5)}, ${userLocation.lng.toFixed(5)}).`;
+
+    }
+    else {
+
+        status.textContent =
+            "No location attached yet — one will be fetched automatically when you submit.";
+
+    }
+
+}
+
+
+/* =========================================================
+   REPORT INCIDENT
+========================================================= */
+
+async function reportIncident() {
 
     const zoneText =
         document.getElementById(
@@ -1385,6 +1768,48 @@ function reportIncident() {
         );
 
 
+    /*
+       Attach location — manually set,
+       previously detected, or a fresh
+       live fetch — and route the report
+       straight to the matching facility
+       (hospital, fire department, etc.)
+       chosen by incident type.
+    */
+
+    const effectiveLocation =
+        await resolveIncidentLocation();
+
+
+    const facility =
+        getRespondingFacility(type);
+
+
+    let etaMinutes = null;
+
+
+    if (effectiveLocation) {
+
+        const distance =
+            calculateDistance(
+                effectiveLocation.lat,
+                effectiveLocation.lng,
+                facility.lat,
+                facility.lng
+            );
+
+
+        etaMinutes =
+            Math.max(
+                3,
+                Math.round(
+                    (distance / 25) * 60
+                ) + 2
+            );
+
+    }
+
+
     const incident = {
 
         id:
@@ -1408,6 +1833,18 @@ function reportIncident() {
 
         description:
             description,
+
+        location:
+            effectiveLocation,
+
+        respondingFacility:
+            facility.name,
+
+        respondingFacilityType:
+            facility.type,
+
+        etaMinutes:
+            etaMinutes,
 
         status:
             "OPEN",
@@ -1438,6 +1875,11 @@ function reportIncident() {
     ).value = "";
 
 
+    incidentLocation = null;
+
+    refreshIncidentLocationStatus();
+
+
     document.getElementById(
         "incidentMessage"
     ).innerHTML = `
@@ -1458,8 +1900,12 @@ function reportIncident() {
                 </h3>
 
                 <p>
-                    Safety personnel have
-                    been notified.
+                    ${facility.icon}
+                    <strong>${facility.name}</strong>
+                    has been notified
+                    ${etaMinutes
+                        ? `— estimated response time <strong>${etaMinutes} min</strong>.`
+                        : "based on your report."}
                 </p>
 
             </div>
@@ -1470,7 +1916,7 @@ function reportIncident() {
 
 
     showToast(
-        "Incident reported successfully"
+        `Incident reported — ${facility.name} notified`
     );
 
 }
@@ -2099,6 +2545,26 @@ function simulateEnvironmentalChanges() {
                     : 10;
 
 
+    let transportRisk =
+        transport === "Delayed"
+            ? 75
+            : transport === "Moderate"
+                ? 40
+                : 10;
+
+
+    /*
+       These two drive the visitor-facing
+       risk meter (see computeVisitorRisk).
+    */
+
+    currentWeatherRisk =
+        weatherRisk;
+
+    currentTransportRisk =
+        transportRisk;
+
+
     zones.forEach(zone => {
 
         zone.weatherRisk =
@@ -2115,11 +2581,69 @@ function simulateEnvironmentalChanges() {
 
 
 /* =========================================================
+   WEATHER BROADCAST (BHU)
+========================================================= */
+
+function broadcastWeatherUpdate() {
+
+    const temp =
+        document.getElementById(
+            "visitorWeather"
+        ).textContent;
+
+
+    const condition =
+        document.getElementById(
+            "visitorWeatherText"
+        ).textContent;
+
+
+    showModal(`
+
+        <h2>
+            📢 Weather Broadcast — BHU
+        </h2>
+
+        <p style="margin-top:15px">
+            Current conditions at
+            Banaras Hindu University (BHU):
+        </p>
+
+        <div style="
+            margin-top:20px;
+            padding:15px;
+            background:var(--blue-light);
+            border-radius:10px;
+        ">
+
+            <strong>
+                ${temp} · ${condition}
+            </strong>
+
+            <br><br>
+
+            Pilgrims are advised to stay
+            hydrated and carry rain
+            protection if skies turn cloudy.
+
+        </div>
+
+    `);
+
+
+    showToast(
+        "Weather broadcast sent for BHU"
+    );
+
+}
+
+
+/* =========================================================
    ALERT
 ========================================================= */
 
 function updateAlert(
-    highestRisk
+    publicRisk
 ) {
 
     const title =
@@ -2140,14 +2664,14 @@ function updateAlert(
         );
 
 
-    if (highestRisk >= 70) {
+    if (publicRisk >= 70) {
 
         title.textContent =
             "⚠ High Risk Alert";
 
 
         text.textContent =
-            "One or more areas have dangerous crowd levels. Please avoid red zones and follow alternate routes.";
+            "Weather or transport conditions are creating significant risk. Please avoid travel where possible and follow staff instructions.";
 
 
         box.style.background =
@@ -2158,14 +2682,14 @@ function updateAlert(
             "#fecaca";
 
     }
-    else if (highestRisk >= 40) {
+    else if (publicRisk >= 40) {
 
         title.textContent =
             "⚠ Safety Advisory";
 
 
         text.textContent =
-            "Crowd density is elevated in some areas. Please follow staff instructions.";
+            "Weather or transport conditions require some caution. Please follow marked routes and staff instructions.";
 
 
         box.style.background =
@@ -2183,7 +2707,7 @@ function updateAlert(
 
 
         text.textContent =
-            "Current visitor conditions are within safe operating limits.";
+            "Current weather and transport conditions are within safe operating limits.";
 
 
         box.style.background =
@@ -2245,6 +2769,18 @@ function getUserLocation() {
 
             message.textContent =
                 "Location detected successfully.";
+
+
+            userLocation = {
+                lat: lat,
+                lng: lng
+            };
+
+
+            findNearbyFacilities(
+                lat,
+                lng
+            );
 
 
             const nearest =
@@ -2475,141 +3011,625 @@ function toRadians(
 
 
 /* =========================================================
-   SAFE ROUTE
+   NEARBY FACILITIES
 ========================================================= */
 
-function findSafeRoute() {
+function findNearbyFacilities(
+    lat,
+    lng
+) {
 
-    const safeZones =
-        zones.filter(
-            zone =>
-                zone.status ===
-                "SAFE"
+    const container =
+        document.getElementById(
+            "facilitiesResult"
+        );
+
+    const hint =
+        document.getElementById(
+            "facilitiesHint"
         );
 
 
-    if (
-        safeZones.length === 0
-    ) {
+    if (!container) return;
 
-        showModal(`
 
-            <h2>
-                No Safe Route Available
-            </h2>
+    const withDistance =
+        facilities.map(
+            facility => ({
+                ...facility,
+                distance:
+                    calculateDistance(
+                        lat,
+                        lng,
+                        facility.lat,
+                        facility.lng
+                    )
+            })
+        ).sort(
+            (a, b) =>
+                a.distance - b.distance
+        );
 
-            <p style="margin-top:15px">
 
-                Current conditions require
-                you to remain where you are
-                and follow emergency staff
-                instructions.
+    if (hint) {
 
-            </p>
+        hint.style.display =
+            "none";
 
-        `);
+    }
+
+
+    container.innerHTML =
+        withDistance.map(
+            facility => `
+
+                <div class="facility-item">
+
+                    <span class="facility-icon">
+                        ${facility.icon}
+                    </span>
+
+                    <div>
+
+                        <strong>
+                            ${facility.name}
+                        </strong>
+
+                        <p>
+                            ${facility.type} ·
+                            ${facility.distance.toFixed(2)} km away
+                        </p>
+
+                    </div>
+
+                </div>
+
+            `
+        ).join("");
+
+}
+
+
+/* =========================================================
+   ESCAPE ROUTE MAP (OFFLINE)
+========================================================= */
+
+/*
+   Everything here runs on data already
+   held in memory (zones, facilities) plus
+   the device's own geolocation — no map
+   tiles or network requests are used, so
+   it keeps working with no connection.
+*/
+
+function findNearestEscapeRoute() {
+
+    scrollToSection(
+        "escapeMapSection"
+    );
+
+
+    renderEscapeMap();
+
+    renderEscapeRouteSummary();
+
+
+    if (!userLocation) {
+
+        locateOnEscapeMap();
+
+    }
+
+}
+
+
+function locateOnEscapeMap() {
+
+    const summary =
+        document.getElementById(
+            "escapeRouteSummary"
+        );
+
+
+    if (!navigator.geolocation) {
+
+        if (summary) {
+
+            summary.innerHTML =
+                "<p>Geolocation is not supported by this browser.</p>";
+
+        }
 
         return;
 
     }
 
 
-    const route =
-        safeZones
-            .map(
-                zone =>
-                    zone.name
-            )
-            .join(
-                " → "
+    if (summary) {
+
+        summary.innerHTML =
+            "<p>Detecting your location...</p>";
+
+    }
+
+
+    navigator.geolocation.getCurrentPosition(
+
+        position => {
+
+            userLocation = {
+
+                lat:
+                    position.coords.latitude,
+
+                lng:
+                    position.coords.longitude
+
+            };
+
+
+            refreshIncidentLocationStatus();
+
+            renderEscapeMap();
+
+            renderEscapeRouteSummary();
+
+
+            showToast(
+                "Position located on the offline map"
             );
 
+        },
 
-    showModal(`
+        error => {
 
-        <h2>
-            🗺 Safe Route
-        </h2>
+            console.error(error);
 
-        <p style="margin-top:15px">
 
-            Recommended safe areas:
+            if (summary) {
 
-        </p>
+                summary.innerHTML =
+                    "<p>Could not access your location. Please enable location permission and try again.</p>";
 
-        <p style="
-            margin-top:12px;
-            font-weight:700;
-            color:#16a34a;
-        ">
+            }
 
-            ${route}
+        }
 
-        </p>
-
-        <p style="
-            margin-top:15px;
-            color:#727b8d;
-        ">
-
-            Please follow the marked
-            directions and staff guidance.
-
-        </p>
-
-    `);
+    );
 
 }
 
 
-/* =========================================================
-   EMERGENCY
-========================================================= */
+/*
+   Project a lat/lng onto the schematic
+   map's pixel grid, given the bounding
+   box of every point being plotted.
+*/
 
-function showEmergency() {
+function projectToMap(
+    lat,
+    lng,
+    bounds,
+    width,
+    height,
+    padding
+) {
 
-    showModal(`
+    const latSpan =
+        (bounds.maxLat - bounds.minLat) ||
+        0.001;
 
-        <h2 style="color:#dc2626">
+    const lngSpan =
+        (bounds.maxLng - bounds.minLng) ||
+        0.001;
 
-            🚨 Emergency Assistance
 
-        </h2>
+    const xRatio =
+        (lng - bounds.minLng) /
+        lngSpan;
 
-        <p style="margin-top:15px">
+    const yRatio =
+        (bounds.maxLat - lat) /
+        latSpan;
 
-            Emergency services can be contacted
-            immediately.
 
+    return {
+
+        x:
+            padding +
+            xRatio * (width - padding * 2),
+
+        y:
+            padding +
+            yRatio * (height - padding * 2)
+
+    };
+
+}
+
+
+function computeBearing(
+    lat1,
+    lng1,
+    lat2,
+    lng2
+) {
+
+    const dLon =
+        toRadians(lng2 - lng1);
+
+
+    const y =
+        Math.sin(dLon) *
+        Math.cos(toRadians(lat2));
+
+
+    const x =
+        Math.cos(toRadians(lat1)) *
+        Math.sin(toRadians(lat2)) -
+
+        Math.sin(toRadians(lat1)) *
+        Math.cos(toRadians(lat2)) *
+        Math.cos(dLon);
+
+
+    let bearing =
+        Math.atan2(y, x) *
+        180 / Math.PI;
+
+
+    bearing =
+        (bearing + 360) % 360;
+
+
+    const directions =
+        [
+            "N", "NNE", "NE", "ENE",
+            "E", "ESE", "SE", "SSE",
+            "S", "SSW", "SW", "WSW",
+            "W", "WNW", "NW", "NNW"
+        ];
+
+
+    const index =
+        Math.round(bearing / 22.5) % 16;
+
+
+    return directions[index];
+
+}
+
+
+function nearestEscapeZone() {
+
+    const safeZones =
+        zones.filter(
+            zone =>
+                zone.status === "SAFE"
+        );
+
+
+    const candidates =
+        safeZones.length > 0
+            ? safeZones
+            : [...zones].sort(
+                (a, b) =>
+                    a.risk - b.risk
+            );
+
+
+    if (!userLocation) {
+
+        return candidates[0];
+
+    }
+
+
+    return candidates.reduce(
+        (closest, zone) =>
+
+            calculateDistance(
+                userLocation.lat,
+                userLocation.lng,
+                zone.lat,
+                zone.lng
+            ) <
+
+            calculateDistance(
+                userLocation.lat,
+                userLocation.lng,
+                closest.lat,
+                closest.lng
+            )
+
+                ? zone
+                : closest
+
+    );
+
+}
+
+
+function renderEscapeMap() {
+
+    const container =
+        document.getElementById(
+            "escapeMapContainer"
+        );
+
+
+    if (!container) return;
+
+
+    const width = 600;
+
+    const height = 380;
+
+    const padding = 46;
+
+
+    const isDark =
+        document.body.classList.contains(
+            "dark-theme"
+        );
+
+
+    const mapBackground =
+        isDark ? "#101a2e" : "#e9eefb";
+
+    const labelColor =
+        isDark ? "#f8fafc" : "#172033";
+
+    const mutedColor =
+        isDark ? "#aeb8ca" : "#727b8d";
+
+
+    const points =
+        [
+            ...zones.map(
+                zone => ({
+                    lat: zone.lat,
+                    lng: zone.lng
+                })
+            ),
+
+            ...facilities.map(
+                facility => ({
+                    lat: facility.lat,
+                    lng: facility.lng
+                })
+            )
+        ];
+
+
+    if (userLocation) {
+
+        points.push({
+            lat: userLocation.lat,
+            lng: userLocation.lng
+        });
+
+    }
+
+
+    const bounds = {
+
+        minLat:
+            Math.min(...points.map(p => p.lat)),
+
+        maxLat:
+            Math.max(...points.map(p => p.lat)),
+
+        minLng:
+            Math.min(...points.map(p => p.lng)),
+
+        maxLng:
+            Math.max(...points.map(p => p.lng))
+
+    };
+
+
+    let svg =
+        `<svg viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;">`;
+
+
+    svg +=
+        `<rect x="0" y="0" width="${width}" height="${height}" rx="16" fill="${mapBackground}" />`;
+
+
+    /*
+       Route line from the visitor to
+       the nearest usable escape zone,
+       drawn first so markers sit on top.
+    */
+
+    if (userLocation) {
+
+        const target =
+            nearestEscapeZone();
+
+        const userPoint =
+            projectToMap(
+                userLocation.lat,
+                userLocation.lng,
+                bounds, width, height, padding
+            );
+
+        const targetPoint =
+            projectToMap(
+                target.lat,
+                target.lng,
+                bounds, width, height, padding
+            );
+
+
+        svg += `
+            <line x1="${userPoint.x}" y1="${userPoint.y}"
+                  x2="${targetPoint.x}" y2="${targetPoint.y}"
+                  stroke="#2563eb" stroke-width="3"
+                  stroke-dasharray="7 6" stroke-linecap="round" />
+        `;
+
+    }
+
+
+    /*
+       Zones
+    */
+
+    zones.forEach(zone => {
+
+        const p =
+            projectToMap(
+                zone.lat, zone.lng,
+                bounds, width, height, padding
+            );
+
+        const color =
+            getRiskColor(zone.status);
+
+
+        svg += `
+            <circle cx="${p.x}" cy="${p.y}" r="15"
+                    fill="${color}" fill-opacity="0.18"
+                    stroke="${color}" stroke-width="2.5" />
+            <circle cx="${p.x}" cy="${p.y}" r="4.5" fill="${color}" />
+            <text x="${p.x}" y="${p.y - 22}" font-size="11"
+                  font-weight="700" text-anchor="middle"
+                  fill="${labelColor}">${zone.name}</text>
+        `;
+
+    });
+
+
+    /*
+       Facilities
+    */
+
+    facilities.forEach(facility => {
+
+        const p =
+            projectToMap(
+                facility.lat, facility.lng,
+                bounds, width, height, padding
+            );
+
+
+        svg += `
+            <circle cx="${p.x}" cy="${p.y}" r="10"
+                    fill="${isDark ? "#151f35" : "#ffffff"}"
+                    stroke="#2563eb" stroke-width="2" />
+            <text x="${p.x}" y="${p.y + 4}" font-size="11"
+                  text-anchor="middle">${facility.icon}</text>
+            <text x="${p.x}" y="${p.y + 20}" font-size="9"
+                  text-anchor="middle" fill="${mutedColor}">${facility.type}</text>
+        `;
+
+    });
+
+
+    /*
+       Visitor marker, drawn last so it
+       sits above everything else.
+    */
+
+    if (userLocation) {
+
+        const userPoint =
+            projectToMap(
+                userLocation.lat,
+                userLocation.lng,
+                bounds, width, height, padding
+            );
+
+
+        svg += `
+            <circle cx="${userPoint.x}" cy="${userPoint.y}" r="14"
+                    fill="none" stroke="#2563eb" stroke-width="2" opacity="0.4" />
+            <circle cx="${userPoint.x}" cy="${userPoint.y}" r="7"
+                    fill="#2563eb" stroke="#ffffff" stroke-width="2" />
+            <text x="${userPoint.x}" y="${userPoint.y + 26}" font-size="11"
+                  font-weight="700" text-anchor="middle" fill="#2563eb">You</text>
+        `;
+
+    }
+
+
+    svg += "</svg>";
+
+
+    container.innerHTML = svg;
+
+}
+
+
+function renderEscapeRouteSummary() {
+
+    const summary =
+        document.getElementById(
+            "escapeRouteSummary"
+        );
+
+
+    if (!summary) return;
+
+
+    if (!userLocation) {
+
+        summary.innerHTML = `
+
+            <p>
+                Tap "Locate My Position" to see your
+                nearest escape route on the map above.
+                Once loaded, this works without an
+                internet connection.
+            </p>
+
+        `;
+
+        return;
+
+    }
+
+
+    const target =
+        nearestEscapeZone();
+
+    const distance =
+        calculateDistance(
+            userLocation.lat,
+            userLocation.lng,
+            target.lat,
+            target.lng
+        );
+
+    const direction =
+        computeBearing(
+            userLocation.lat,
+            userLocation.lng,
+            target.lat,
+            target.lng
+        );
+
+
+    summary.innerHTML = `
+
+        <strong>Nearest escape route</strong>
+
+        <p style="margin-top:6px">
+            Head <strong>${direction}</strong> toward
+            <strong>${target.name}</strong> —
+            about ${distance.toFixed(2)} km away.
         </p>
 
+        <p style="margin-top:6px; color:var(--muted); font-size:13px">
+            Zone status:
+            <strong style="color:${getRiskColor(target.status)}">
+                ${target.status}
+            </strong>
+        </p>
 
-        <div style="
-            display:grid;
-            gap:10px;
-            margin-top:20px;
-        ">
-
-            <button
-                class="danger-btn"
-                onclick="sendEmergency()">
-
-                🚑 Medical
-
-            </button>
-
-
-            <button
-                class="secondary-btn"
-                onclick="broadcastAlert()">
-
-                📢 Alert Site Management
-
-            </button>
-
-        </div>
-
-    `);
+    `;
 
 }
 
@@ -2708,6 +3728,62 @@ function closeDangerZone() {
 
 function sendEmergency() {
 
+    let etaMinutes;
+
+    let respondingFrom =
+        "the nearest medical team";
+
+
+    if (userLocation) {
+
+        const hospital =
+            facilities.find(
+                facility =>
+                    facility.type ===
+                    "Hospital"
+            ) ||
+            facilities[0];
+
+
+        const distance =
+            calculateDistance(
+                userLocation.lat,
+                userLocation.lng,
+                hospital.lat,
+                hospital.lng
+            );
+
+
+        /*
+           Assume ~25 km/h average
+           speed through crowded
+           pilgrimage routes, plus a
+           fixed 2 minute dispatch buffer.
+        */
+
+        etaMinutes =
+            Math.max(
+                3,
+                Math.round(
+                    (distance / 25) * 60
+                ) + 2
+            );
+
+
+        respondingFrom =
+            hospital.name;
+
+    }
+    else {
+
+        etaMinutes =
+            Math.floor(
+                Math.random() * 6
+            ) + 5;
+
+    }
+
+
     showModal(`
 
         <h2 style="color:#dc2626">
@@ -2735,13 +3811,29 @@ function sendEmergency() {
                 DISPATCHING
             </strong>
 
+            <br><br>
+
+            Estimated arrival:
+            <strong>
+                ${etaMinutes} min
+            </strong>
+
+            <br>
+
+            <span style="
+                color:#727b8d;
+                font-size:14px;
+            ">
+                from ${respondingFrom}
+            </span>
+
         </div>
 
     `);
 
 
     showToast(
-        "Emergency response initiated"
+        `Emergency response initiated — ETA ${etaMinutes} min`
     );
 
 }

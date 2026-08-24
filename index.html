@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safe Yatri AI - 3 Section Dashboard</title>
+
+    <!-- TensorFlow.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <!-- COCO-SSD Object Detection -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- =========================================================
+     HEADER / NAVIGATION
+========================================================= -->
+<header class="header">
+    <div class="header-container">
+        <div class="logo">
+            <i class="fa-solid fa-shield-halved"></i>
+            <span>Safe Yatri AI</span>
+        </div>
+
+        <nav class="main-nav">
+            <button class="nav-link active" data-section="visitor">
+                <i class="fa-solid fa-user"></i>
+                <span data-i18n="visitor">Visitor</span>
+            </button>
+            <button class="nav-link" data-section="ai">
+                <i class="fa-solid fa-robot"></i>
+                <span data-i18n="ai">AI Module</span>
+            </button>
+            <button class="nav-link" data-section="admin">
+                <i class="fa-solid fa-lock"></i>
+                <span data-i18n="admin">Admin</span>
+            </button>
+        </nav>
+
+        <div class="header-actions">
+            <select id="languageSelect" class="language-select">
+                <option value="en">English</option>
+                <option value="hi">हिन्दी</option>
+                <option value="bn">বাংলা</option>
+                <option value="ta">தமிழ்</option>
+                <option value="or">ଓଡ଼ିଆ</option>
+            </select>
+
+            <button class="theme-toggle" id="themeToggle">
+                <i class="fa-solid fa-sun theme-icon sun-icon"></i>
+                <span class="toggle-knob"></span>
+                <i class="fa-solid fa-moon theme-icon moon-icon"></i>
+            </button>
+        </div>
+    </div>
+</header>
+
+<!-- =========================================================
+     MAIN CONTENT
+========================================================= -->
+<main class="main-content">
+
+    <!-- =========================================================
+         SECTION 1: VISITOR
+    ========================================================= -->
+    <section id="visitor-section" class="section-panel active">
+        <div class="section-wrapper">
+            <!-- Hero -->
+            <div class="hero">
+                <div class="hero-content">
+                    <span class="hero-tag">AI POWERED SAFETY</span>
+                    <h1 data-i18n="safer-pilgrimage">Safer Pilgrimage, Smarter Crowd Management</h1>
+                    <p>Real-time crowd monitoring, instant weather broadcasts, facility locations, and emergency response.</p>
+                    <button class="btn btn-primary" onclick="checkMySafety()">
+                        <i class="fa-solid fa-shield"></i> Check My Safety
+                    </button>
+                </div>
+                <div class="hero-icon">
+                    <i class="fa-solid fa-location-dot"></i>
+                    <div class="pulse"></div>
+                </div>
+            </div>
+
+            <!-- Safety Status Cards -->
+            <section class="safety-section">
+                <h2 data-i18n="safety-status">Current Safety Status</h2>
+                <div class="safety-grid">
+                    <div class="card card-main">
+                        <div class="card-icon red">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                        <div>
+                            <p data-i18n="overall-risk">Overall Risk</p>
+                            <h3 id="visitorRisk">LOW</h3>
+                            <div class="risk-meter">
+                                <div id="visitorRiskBar" class="risk-meter-fill"></div>
+                            </div>
+                            <span id="visitorRiskScore">25 / 100</span>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-icon orange">
+                            <i class="fa-solid fa-cloud-sun" id="weatherIcon"></i>
+                        </div>
+                        <div>
+                            <p data-i18n="weather">Weather (Bhubaneswar)</p>
+                            <h3 id="visitorWeather">--°C</h3>
+                            <span id="visitorWeatherText">Loading live weather...</span>
+                            <div class="live-badge">
+                                <i class="fa-solid fa-satellite-dish"></i> LIVE
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-icon green">
+                            <i class="fa-solid fa-bus"></i>
+                        </div>
+                        <div>
+                            <p data-i18n="transport">Transport</p>
+                            <h3 id="visitorTransport">Normal</h3>
+                            <span>Shuttle service active</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Alerts & Advisories -->
+            <section class="alert-section">
+                <h2 data-i18n="alerts">Safety Alerts & Advisories</h2>
+                <div id="visitorAlerts" class="alerts-container">
+                    <div class="alert alert-info">
+                        <i class="fa-solid fa-circle-info"></i>
+                        <div>
+                            <strong data-i18n="peak-hours">Peak Hours</strong>
+                            <p data-i18n="peak-hours-desc">High crowd density expected between 4-6 PM. Avoid if possible.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Crowd Check -->
+            <section class="crowd-section">
+                <h2 data-i18n="crowd-check">Popular Places - Crowd Check</h2>
+                <p class="section-desc">Check current crowd levels at popular temples and spots</p>
+                <button class="btn btn-secondary" onclick="checkPopularPlacesCrowd()">
+                    <i class="fa-solid fa-users"></i> Check Crowd Levels
+                </button>
+                <div id="popularPlacesResult" class="places-grid"></div>
+            </section>
+
+            <!-- Location Detection -->
+            <section class="location-section">
+                <h2 data-i18n="location">Your Location & Risk Assessment</h2>
+                <p class="section-desc">Detect your location and get personalized safety assessment</p>
+                <button class="btn btn-secondary" onclick="runLocationSafetyCheck()">
+                    <i class="fa-solid fa-location-crosshairs"></i> Detect Location & Assess Risk
+                </button>
+                <div id="crowdPredictionResult" class="assessment-result"></div>
+            </section>
+        </div>
+    </section>
+
+    <!-- =========================================================
+         SECTION 2: AI MODULE
+    ========================================================= -->
+    <section id="ai-section" class="section-panel">
+        <div class="section-wrapper">
+            <div class="ai-header">
+                <h1 data-i18n="ai-modules">AI Safety Modules</h1>
+                <p>Advanced AI-powered monitoring and detection systems</p>
+            </div>
+
+            <!-- AI Camera Detection -->
+            <section class="ai-module">
+                <div class="module-header">
+                    <div>
+                        <h2 data-i18n="camera-detection">AI Camera Detection</h2>
+                        <p>Real-time crowd density and anomaly detection using computer vision</p>
+                    </div>
+                    <span class="badge badge-active">Active</span>
+                </div>
+                <div class="module-content">
+                    <div class="camera-feed">
+                        <div id="aiCameraContainer" class="camera-placeholder">
+                            <i class="fa-solid fa-video"></i>
+                            <p>Camera Feed</p>
+                        </div>
+                        <video id="aiVideo" class="camera-video" style="display:none;"></video>
+                        <canvas id="aiCanvas" style="display:none;"></canvas>
+                        <div class="camera-controls">
+                            <button class="btn btn-sm" id="startCameraBtn" onclick="startAICamera()">
+                                <i class="fa-solid fa-play"></i> <span data-i18n="start-detection">Start Detection</span>
+                            </button>
+                            <button class="btn btn-sm btn-danger" id="stopCameraBtn" onclick="stopAICamera()" style="display: none;">
+                                <i class="fa-solid fa-stop"></i> <span data-i18n="stop-detection">Stop Detection</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="detection-stats">
+                        <h3>Detection Stats</h3>
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <span class="stat-label" data-i18n="people-detected">People Detected</span>
+                                <span class="stat-value" id="peopleCount">0</span>
+                            </div>
+                            <div class="stat-card">
+                                <span class="stat-label" data-i18n="crowd-density">Crowd Density</span>
+                                <span class="stat-value" id="crowdDensity">Low</span>
+                            </div>
+                            <div class="stat-card">
+                                <span class="stat-label" data-i18n="anomalies">Anomalies</span>
+                                <span class="stat-value" id="anomalyCount">0</span>
+                            </div>
+                            <div class="stat-card">
+                                <span class="stat-label" data-i18n="fps">FPS</span>
+                                <span class="stat-value" id="fpsCount">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Person Detection -->
+            <section class="ai-module">
+                <div class="module-header">
+                    <div>
+                        <h2>Person Detection & Tracking</h2>
+                        <p>Identify and track individuals in crowd scenarios</p>
+                    </div>
+                    <span class="badge badge-inactive">Standby</span>
+                </div>
+                <div class="module-content">
+                    <div class="detection-info">
+                        <i class="fa-solid fa-circle-info"></i>
+                        <p>Person detection is standby mode. Enable to start tracking individuals in your area.</p>
+                    </div>
+                    <button class="btn btn-secondary">
+                        <i class="fa-solid fa-person"></i> Enable Person Tracking
+                    </button>
+                </div>
+            </section>
+
+            <!-- Anomaly Detection -->
+            <section class="ai-module">
+                <div class="module-header">
+                    <div>
+                        <h2>Anomaly Detection</h2>
+                        <p>Detect unusual crowd behavior and incidents</p>
+                    </div>
+                    <span class="badge badge-active">Active</span>
+                </div>
+                <div class="module-content">
+                    <div class="anomaly-alerts">
+                        <div class="anomaly-item">
+                            <span class="severity critical">Critical</span>
+                            <p>Sudden crowd surge detected near Lingaraj Temple</p>
+                            <small>2 minutes ago</small>
+                        </div>
+                        <div class="anomaly-item">
+                            <span class="severity warning">Warning</span>
+                            <p>Unusual pattern at Dhauli Peace Pagoda</p>
+                            <small>5 minutes ago</small>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Weather Pattern Analysis -->
+            <section class="ai-module">
+                <div class="module-header">
+                    <div>
+                        <h2>Weather Pattern Analysis</h2>
+                        <p>AI-powered weather forecasting for safety planning</p>
+                    </div>
+                    <span class="badge badge-active">Live</span>
+                </div>
+                <div class="module-content">
+                    <div class="weather-forecast">
+                        <div class="forecast-card">
+                            <span class="time">Now</span>
+                            <i class="fa-solid fa-cloud-sun"></i>
+                            <span class="temp">28°C</span>
+                        </div>
+                        <div class="forecast-card">
+                            <span class="time">2 PM</span>
+                            <i class="fa-solid fa-cloud"></i>
+                            <span class="temp">30°C</span>
+                        </div>
+                        <div class="forecast-card">
+                            <span class="time">4 PM</span>
+                            <i class="fa-solid fa-cloud-rain"></i>
+                            <span class="temp">27°C</span>
+                        </div>
+                        <div class="forecast-card">
+                            <span class="time">6 PM</span>
+                            <i class="fa-solid fa-cloud-rain"></i>
+                            <span class="temp">25°C</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </section>
+
+    <!-- =========================================================
+         SECTION 3: ADMIN
+    ========================================================= -->
+    <section id="admin-section" class="section-panel">
+        <div class="section-wrapper">
+            <!-- Admin Login (if not authenticated) -->
+            <div id="adminLoginPanel" class="login-panel">
+                <div class="login-card">
+                    <h1>Admin Dashboard Login</h1>
+                    <p>Secure access to monitoring and alert controls</p>
+                    
+                    <form id="adminLoginForm" onsubmit="handleAdminLogin(event)">
+                        <div class="form-group">
+                            <label for="adminEmail">Username</label>
+                            <input type="text" id="adminEmail" placeholder="Enter username" required autocomplete="username">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="adminPassword">Password</label>
+                            <input type="password" id="adminPassword" placeholder="Enter password" required autocomplete="current-password">
+                        </div>
+
+                        <div class="form-group checkbox">
+                            <input type="checkbox" id="adminRemember">
+                            <label for="adminRemember">Remember me</label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-block">
+                            <i class="fa-solid fa-lock-open"></i> Login to Admin Panel
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Admin Dashboard (shown after login) -->
+            <div id="adminDashboard" class="admin-dashboard" style="display: none;">
+                <div class="dashboard-header">
+                    <div>
+                        <h1>Control Center</h1>
+                        <p>Monitor, control, and manage safety operations</p>
+                    </div>
+                    <button class="btn btn-sm" onclick="handleAdminLogout()">
+                        <i class="fa-solid fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+
+                <!-- Quick Stats -->
+                <section class="quick-stats">
+                    <div class="stat-box">
+                        <i class="fa-solid fa-users"></i>
+                        <div>
+                            <span class="label">Active Visitors</span>
+                            <span class="value" id="adminActiveVisitors">1,243</span>
+                        </div>
+                    </div>
+                    <div class="stat-box">
+                        <i class="fa-solid fa-exclamation-triangle"></i>
+                        <div>
+                            <span class="label">Active Alerts</span>
+                            <span class="value" id="adminActiveAlerts">3</span>
+                        </div>
+                    </div>
+                    <div class="stat-box">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <div>
+                            <span class="label">Overall Status</span>
+                            <span class="value" id="adminStatus">Good</span>
+                        </div>
+                    </div>
+                    <div class="stat-box">
+                        <i class="fa-solid fa-wifi"></i>
+                        <div>
+                            <span class="label">Connectivity</span>
+                            <span class="value" id="adminConnectivity">Online</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Broadcast Alert Section -->
+                <section class="admin-section-card">
+                    <h2><i class="fa-solid fa-bullhorn"></i> Broadcast Safety Alert</h2>
+                    <div class="alert-form">
+                        <div class="form-group">
+                            <label for="alertLevel">Alert Level</label>
+                            <select id="alertLevel">
+                                <option value="info">Info</option>
+                                <option value="warning">Warning</option>
+                                <option value="critical">Critical</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="alertMessage">Message</label>
+                            <textarea id="alertMessage" placeholder="Enter safety alert message..." rows="3"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="alertZone">Target Zone</label>
+                            <select id="alertZone">
+                                <option value="all">All Zones</option>
+                                <option value="temple">Lingaraj Temple</option>
+                                <option value="main">Mukteshwar Temple</option>
+                                <option value="path">Dhauli Peace Pagoda</option>
+                                <option value="parking">Nandankanan Zoo</option>
+                            </select>
+                        </div>
+
+                        <button class="btn btn-primary btn-block" onclick="broadcastAlert()">
+                            <i class="fa-solid fa-paper-plane"></i> Broadcast Alert
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Active Incidents -->
+                <section class="admin-section-card">
+                    <h2><i class="fa-solid fa-fire"></i> Active Incidents</h2>
+                    <div id="adminIncidents" class="incidents-list">
+                        <div class="incident-card">
+                            <span class="incident-badge critical">Critical</span>
+                            <h3>Crowd Surge at Temple</h3>
+                            <p>Lingaraj Temple - 5 mins ago</p>
+                            <p class="incident-desc">High crowd density detected, evacuation recommended</p>
+                            <div class="incident-actions">
+                                <button class="btn btn-sm btn-secondary">View</button>
+                                <button class="btn btn-sm btn-danger">Resolve</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Zone Monitoring -->
+                <section class="admin-section-card">
+                    <h2><i class="fa-solid fa-map"></i> <span data-i18n="zone-monitoring">Zone Monitoring & Control</span></h2>
+                    <div class="zones-grid" id="zonesGrid">
+                        <!-- Zone cards are rendered dynamically by renderZones() in script.js -->
+                    </div>
+                </section>
+
+                <!-- Weather & System Reports -->
+                <section class="admin-section-card">
+                    <h2><i class="fa-solid fa-cloud"></i> <span data-i18n="weather-reports">Weather & System Reports</span></h2>
+                    <div class="reports-grid">
+                        <div class="report-card">
+                            <h3>Current Weather</h3>
+                            <div class="weather-info">
+                                <i class="fa-solid fa-cloud-sun"></i>
+                                <div>
+                                    <span class="temp" id="adminWeather">28°C</span>
+                                    <span class="condition" id="adminWeatherStatus">Partly Cloudy</span>
+                                </div>
+                            </div>
+                            <p class="report-desc">Humidity: 65% | Wind: 15 km/h</p>
+                        </div>
+
+                        <div class="report-card">
+                            <h3>System Status</h3>
+                            <div class="system-status">
+                                <div class="status-item">
+                                    <span>Server</span>
+                                    <span class="status-good">Online</span>
+                                </div>
+                                <div class="status-item">
+                                    <span>Database</span>
+                                    <span class="status-good">Connected</span>
+                                </div>
+                                <div class="status-item">
+                                    <span>AI Module</span>
+                                    <span class="status-good">Running</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="report-card">
+                            <h3>Transport Status</h3>
+                            <div class="transport-info">
+                                <i class="fa-solid fa-bus"></i>
+                                <div>
+                                    <span id="adminTransport">Normal Operations</span>
+                                    <p>All shuttle services operational</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="report-card">
+                            <h3>Device Connectivity</h3>
+                            <div>
+                                <p id="connectionStatus" class="status-good">Online - All devices connected</p>
+                                <p class="report-desc">Offline cache: Enabled</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<!-- =========================================================
+     MODAL
+========================================================= -->
+<div id="modal" class="modal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal()">×</button>
+        <div id="modalContent"></div>
+    </div>
+</div>
+
+<!-- =========================================================
+     TOAST
+========================================================= -->
+<div id="toast" class="toast">
+    <i class="fa-solid fa-circle-check"></i>
+    <span id="toastText">Done</span>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
